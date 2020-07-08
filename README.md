@@ -3,13 +3,13 @@
 Estimate number of deaths attributable to one or more pathogens, adjusted for excess temparatures.
 
 # AttMOMO
-Wrapper for AttMOMO_estimation
-Read input data from ;-separated .txt files. Which all must be available in wdir/data
-Create output subdirectory wdir/AttMOMO_'EndWeek'
-with the subdirectories:
- /data - a copy of input data
- /output - contain output from AttMOMO_estimation
-Return estimates as a ;-separated .txt file in /output
+Wrapper for AttMOMO_estimation  
+Read input data from ;-separated .txt files. Which all must be available in wdir/data  
+Create output subdirectory wdir/AttMOMO_'EndWeek'  
+with the subdirectories:  
+ /data - a copy of input data  
+ /output - contain output from AttMOMO_estimation  
+Return estimates as a ;-separated .txt file in /output  
  if Rdata = TRUE also data.
  
 ```{r eval = FALSE}
@@ -30,11 +30,11 @@ AttData <- AttMOMO_estimation(
 ```
 
 # AttMOMO_estimation
-Read and merge input data
-Prepare data for estimation e.g. create lags
-Make the estimations by groups
-Make pooled estimates over selected groups (optional)
-Return a data.table with input data, mean estimated number of attributable deaths and their variances
+Read and merge input data  
+Prepare data for estimation e.g. create lags  
+Make the estimations by groups  
+Make pooled estimates over selected groups (optional)  
+Return a data.table with input data, mean estimated number of attributable deaths and their variances  
 
 Demand that the following data are available i R:  
 death_data - containing the variables: group, ISOweek, deaths  
