@@ -36,10 +36,10 @@ Make the estimations by groups
 Make pooled estimates over selected groups (optional)
 Return a data.table with input data, mean estimated number of attributable deaths and their variances
 
-Demand that the following data are available i R:{br /}
-death_data - containing the variables: group, ISOweek, deaths{br /}
-ET_data - containing the variables: ISOweek, ET (= excess temperature). Can be achieved via GetWdata and GetET{br /}
-One dataset for each pathogen indicator. Containing the variables: group, ISOweek, 'indicator name' (= indicators nominel value){br /}
+Demand that the following data are available i R:  
+death_data - containing the variables: group, ISOweek, deaths  
+ET_data - containing the variables: ISOweek, ET (= excess temperature). Can be achieved via GetWdata and GetET  
+One dataset for each pathogen indicator. Containing the variables: group, ISOweek, 'indicator name' (= indicators nominel value)  
 
 ```{r eval = FALSE}
 AttData <- AttMOMO_estimation(
@@ -59,14 +59,14 @@ AttData <- AttMOMO_estimation(
 ```
 
 # GetWdata
-Read weather data achieved from EuroMOMO.{br /}
-Select specified NUTS-codes{br /}
-Return data with: date, pop3, NUTS3, temp, mintemp, maxtemp{br /}
+Read weather data achieved from EuroMOMO.  
+Select specified NUTS-codes  
+Return data with: date, pop3, NUTS3, temp, mintemp, maxtemp  
 
 # GetET
-Excess Temperature data from weather data.{br /}
-Input data must contain: date, pop3, NUTS3 and the name of the variable to be used to calculate Excess Temperatures{br /}
-Return data.table with ISOweek and ET (excess temperature){br /}
+Excess Temperature data from weather data.  
+Input data must contain: date, pop3, NUTS3 and the name of the variable to be used to calculate Excess Temperatures  
+Return data.table with ISOweek and ET (excess temperature)  
 
 # GetMOMOdata
-Convert an A-MOMO complete file to an AttMOMO input file.{br /}
+Convert an A-MOMO complete file to an AttMOMO input file.  
