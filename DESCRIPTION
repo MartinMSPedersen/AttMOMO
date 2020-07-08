@@ -1,0 +1,22 @@
+Package: AttMOMO
+Title: Attributable Motality Monitoring
+Version: 2020.07.06
+Authors@R: person("Jens", "Nielsen", email = "nls@ssi.dk", role = c("aut", "cre"))
+Description: Estimate number of deaths attributable to one or more pathogens, adjusted for excess temperatures.
+Note: Notes
+Depends: R (>= 3.5)
+Imports:
+  data.table,
+  ISOweek,
+  glm2,
+  utils,
+  stats
+Suggests:
+  testthat,
+  knitr,
+  rmarkdown
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0
+VignetteBuilder: knitr

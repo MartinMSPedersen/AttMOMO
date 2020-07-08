@@ -20,7 +20,7 @@ GetSILSData <- function(StartWeek, EndWeek) {
       set deadlock_priority 5;
   	  select distinct cprnr, datediff(year, dob, cast(diagnosis_in as date)) as age, cast(diagnosis_in as date) as date,
   	    case when (diagnosis_in >= '2020-02-24') and (diagnosis in('DB342A','DB972A','DZ038PA1' /*,'DB342','DB972'*/)) then 1 else 0 end as SCLS,
-  	    case when ('DJ90' <= substring(diagnosis,1,3)) and (substring(diagnosis,1,3) <= 'DJ18') then 1 else 0 end as SIPLS,
+  	    case when substring(diagnosis,1,4) in('DJ09','DJ10','DJ11','DJ12','DJ13','DJ14','DJ15','DJ16','DJ17','DJ18') then 1 else 0 end as SIPLS,
   	    case when substring(diagnosis,1,2) = 'DJ' then 1 else 0 end as SRLS
   	    from
         IB_EpiLPR.EpiLPR3.data_diagnoses with(nolock)
@@ -30,9 +30,10 @@ GetSILSData <- function(StartWeek, EndWeek) {
   RODBC::odbcClose(con)
   rm(con)
 
-  SILSData <- setDT(SILSData)[, .(SCLS = max(SCLS), SRLS = max(SRLS), age = min(age)), keyby = .(cprnr, ISOweek = ISOweek::ISOweek(as.Date(date)))]
+  SILSData <- setDT(SILSData)[, ISOweek := ISOweek::ISOweek(as.Date(date))]
+  SILSData <- SILSData[, .(SCLS = max(SCLS), SRLS = max(SRLS), SIPLS = max(SIPLS), age = min(age)), keyby = .(cprnr, ISOweek)]
   SILSData[ (00 <= age) & (age <= 14), group := '00to14']
-  SILSData[ (15 <= age) & (age <= 44), group := '15to39']
+  SILSData[ (15 <= age) & (age <= 44), group := '15to44']
   SILSData[ (45 <= age) & (age <= 64), group := '45to64']
   SILSData[ (65 <= age) & (age <= 74), group := '65to74']
   SILSData[ (75 <= age) & (age <= 84), group := '75to84']

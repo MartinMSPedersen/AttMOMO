@@ -11,7 +11,8 @@ GetVirData <- function(StartWeek, EndWeek) {
   source("inst/scr/GetDoB.R", encoding = "UTF-8")
   source("inst/scr/EpiMiBaDataCovid19.R", encoding = "UTF-8")
 
-  MiBaData <- setDT(GetMiBaData(ISOweek::ISOweek2date(paste0(StartWeek, "-1")), ISOweek::ISOweek2date(paste0(EndWeek, "-7"))))
+  MiBaData <- data.table(GetMiBaData(ISOweek::ISOweek2date(paste0(StartWeek, "-1")), ISOweek::ISOweek2date(paste0(EndWeek, "-7"))))
+
   MiBaData[, `:=`(age = as.integer(floor((as.Date(prdate) - GetDoB(cprnr))/365.25)),
                   ISOweek = ISOweek::ISOweek(as.Date(prdate)))]
   MiBaData[ (00 <= age) & (age <= 14), group := '00to14']
