@@ -4,20 +4,23 @@ library(cowplot)
 
 # Model -------------------------------------------------------------------
 
-AttData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Denmark/AttMOMO_2020-W22/output/AttData_GSIPLS_GSCLS.txt",
+# AttData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Norway/AttMOMO_2020-W22/output/AttData_pr100_ili_total_gCOVID19.txt",
+#                                  sep = ";", header = TRUE, as.is = TRUE))
+
+AttData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Norway/AttMOMO_2020-W22/output/AttData_pr100_ili_total_covid_hospital.txt",
                                  sep = ";", header = TRUE, as.is = TRUE))
 
 AttData[, `:=`(EB_2L = EB - 2*sqrt(VEB),
                EB_2U = EB + 2*sqrt(VEB),
                EB_4U = EB + 4*sqrt(VEB),
-               EBGSIPLS = EB + EGSIPLS,
-               EBGSIPLSGSCLS = EB + EGSIPLS + EGSCLS,
-               EBGSIPLSGSCLSET = EB + EGSIPLS + EGSCLS + EET,
+               EBpr100_ili_total = EB + Epr100_ili_total,
+               EBpr100_ili_totalcovid_hospital = EB + Epr100_ili_total + Ecovid_hospital,
+               EBpr100_ili_totalcovid_hospitalET = EB + Epr100_ili_total + Ecovid_hospital + EET,
                EAB_2L = EAB - 2*sqrt(VEAB),
                EAB_2U = EAB + 2*sqrt(VEAB),
                EAB_4U = EAB + 4*sqrt(VEAB),
-               EABGSIPLS = EAB + EAGSIPLS,
-               EABGSIPLSGSCLS = EAB + EAGSIPLS + EAGSCLS,
+               EABpr100_ili_total = EAB + EApr100_ili_total,
+               EABpr100_ili_totalcovid_hospital = EAB + EApr100_ili_total + EAcovid_hospital,
                wk = as.numeric(factor(ISOweek)))]
 # Exact 95% (qchisq(0.025, 2*x)/2, qchisq(0.975, 2*(x+1))/2)
 # http://ms.mcmaster.ca/peter/s743/poissonalpha.html
@@ -29,9 +32,9 @@ graph <- ggplot(AttData[group != 'TotalPooled',], aes(x = wk)) +
   geom_line(aes(y = EB_2L, colour = "black"), linetype = "dashed", size = 1) +
   geom_line(aes(y = EB_2U, colour = "black"), linetype = "dashed", size = 1) +
   # geom_line(aes(y = EB_4U, colour = "black"), linetype = "dashed", size = 1) +
-  geom_line(aes(y = EBGSIPLSGSCLSET, colour = "green3"), linetype = "solid", size = 1) +
-  geom_line(aes(y = EBGSIPLSGSCLS, colour = "chocolate4"), linetype = "solid", size = 1) +
-  geom_line(aes(y = EBGSIPLS, colour = "blue"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EBpr100_ili_totalcovid_hospitalET, colour = "green3"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EBpr100_ili_totalcovid_hospital, colour = "chocolate4"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EBpr100_ili_total, colour = "blue"), linetype = "solid", size = 1) +
   geom_line(aes(y = EB, colour = "grey0"), linetype = "solid", size = 1.2) +
   facet_wrap(vars(group), scales = "free_y", ncol = 1) +
   scale_x_continuous(name = "ISOWeek",
@@ -51,11 +54,10 @@ graph_zoom <- ggplot(AttData[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') &
   geom_line(aes(y = deaths, colour = "gray50"), linetype = "solid", size = 1.2) +
   geom_line(aes(y = EB_2L, colour = "black"), linetype = "dashed", size = 1) +
   geom_line(aes(y = EB_2U, colour = "black"), linetype = "dashed", size = 1) +
-  geom_line(aes(y = EBGSIPLSGSCLSET, colour = "green3"), linetype = "solid", size = 1) +
-  geom_line(aes(y = EBGSIPLSGSCLS, colour = "chocolate4"), linetype = "solid", size = 1) +
-  geom_line(aes(y = EBGSIPLS, colour = "blue"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EBpr100_ili_totalcovid_hospitalET, colour = "green3"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EBpr100_ili_totalcovid_hospital, colour = "chocolate4"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EBpr100_ili_total, colour = "blue"), linetype = "solid", size = 1) +
   geom_line(aes(y = EB, colour = "grey0"), linetype = "solid", size = 1.2) +
-  geom_line(aes(y = EAB, colour = "red"), linetype = "solid", size = 1.2) +
   facet_wrap(vars(group), scales = "free_y", ncol = 1) +
   scale_x_continuous(name = "ISOWeek",
                      labels = AttData[seq(min(AttData$wk), max(AttData$wk), by = 4),]$ISOweek,
@@ -79,8 +81,8 @@ graph <- ggplot(AttData[group != 'TotalPooled',], aes(x = wk)) +
   geom_line(aes(y = EAB_2L, colour = "black"), linetype = "dashed", size = 1) +
   geom_line(aes(y = EAB_2U, colour = "black"), linetype = "dashed", size = 1) +
   # geom_line(aes(y = EAB_4U, colour = "black"), linetype = "dashed", size = 1) +
-  geom_line(aes(y = EABGSIPLSGSCLS, colour = "chocolate4"), linetype = "solid", size = 1) +
-  geom_line(aes(y = EABGSIPLS, colour = "blue"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EABpr100_ili_totalcovid_hospital, colour = "chocolate4"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EABpr100_ili_total, colour = "blue"), linetype = "solid", size = 1) +
   geom_line(aes(y = EAB, colour = "grey0"), linetype = "solid", size = 1.2) +
   facet_wrap(vars(group), scales = "free_y", ncol = 1) +
   scale_x_continuous(name = "ISOWeek",
@@ -100,8 +102,8 @@ graph_zoom <- ggplot(AttData[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') &
   geom_line(aes(y = EAB_2L, colour = "black"), linetype = "dashed", size = 1) +
   geom_line(aes(y = EAB_2U, colour = "black"), linetype = "dashed", size = 1) +
   # geom_line(aes(y = EAB_4U, colour = "black"), linetype = "dashed", size = 1) +
-  geom_line(aes(y = EABGSIPLSGSCLS, colour = "chocolate4"), linetype = "solid", size = 1) +
-  geom_line(aes(y = EABGSIPLS, colour = "blue"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EABpr100_ili_totalcovid_hospital, colour = "chocolate4"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EABpr100_ili_total, colour = "blue"), linetype = "solid", size = 1) +
   geom_line(aes(y = EAB, colour = "grey0"), linetype = "solid", size = 1.2) +
   facet_wrap(vars(group), scales = "free_y", ncol = 1) +
   scale_x_continuous(name = "ISOWeek",
@@ -128,15 +130,15 @@ graph_base <- ggplot(AttData[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') &
   geom_line(aes(y = deaths, colour = "gray50"), linetype = "solid", size = 1.2) +
   geom_line(aes(y = EB_2L, colour = "black"), linetype = "dashed", size = 1) +
   geom_line(aes(y = EB_2U, colour = "black"), linetype = "dashed", size = 1) +
-  geom_line(aes(y = EBGSIPLSGSCLSET, colour = "green3"), linetype = "solid", size = 1) +
-  geom_line(aes(y = EBGSIPLSGSCLS, colour = "chocolate4"), linetype = "solid", size = 1) +
-  geom_line(aes(y = EBGSIPLS, colour = "blue"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EBpr100_ili_totalcovid_hospitalET, colour = "green3"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EBpr100_ili_totalcovid_hospital, colour = "chocolate4"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EBpr100_ili_total, colour = "blue"), linetype = "solid", size = 1) +
   geom_line(aes(y = EB, colour = "grey0"), linetype = "solid", size = 1.2) +
   ggtitle("Base model") +
   scale_x_continuous(name = "ISOWeek",
                      labels = AttData[seq(min(AttData$wk), max(AttData$wk), by = 4),]$ISOweek,
                      breaks = seq(min(AttData$wk), max(AttData$wk), by = 4)) +
-  scale_y_continuous(name = "Number of deaths", limits = c(790, 1275), breaks = seq(800, 1250, by = 50)) +
+  scale_y_continuous(name = "Number of deaths") +
   theme(plot.title = element_text(face = 'bold', hjust = 0.5, size = 20), legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1, size = 7)) +
   scale_color_identity(name = "",
                        breaks = c("gray50", "grey0", 'black', 'blue', 'chocolate4', 'green3'),
@@ -145,19 +147,19 @@ graph_base <- ggplot(AttData[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') &
                        guide = "legend")
 # print(graph_base)
 
-graph_adj <-  ggplot(AttData[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') & (group == 'Total'), ], aes(x = wk)) +
+graph_adj <- ggplot(AttData[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') & (group == 'Total'), ], aes(x = wk)) +
   geom_line(aes(y = deaths, colour = "gray50"), linetype = "solid", size = 1.2) +
   geom_line(aes(y = EAB_2L, colour = "black"), linetype = "dashed", size = 1) +
   geom_line(aes(y = EAB_2U, colour = "black"), linetype = "dashed", size = 1) +
   # geom_line(aes(y = EAB_4U, colour = "black"), linetype = "dashed", size = 1) +
-  geom_line(aes(y = EABGSIPLSGSCLS, colour = "chocolate4"), linetype = "solid", size = 1) +
-  geom_line(aes(y = EABGSIPLS, colour = "blue"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EABpr100_ili_totalcovid_hospital, colour = "chocolate4"), linetype = "solid", size = 1) +
+  geom_line(aes(y = EABpr100_ili_total, colour = "blue"), linetype = "solid", size = 1) +
   geom_line(aes(y = EAB, colour = "grey0"), linetype = "solid", size = 1.2) +
   ggtitle("Adjusted baseline model") +
   scale_x_continuous(name = "ISOWeek",
                      labels = AttData[seq(min(AttData$wk), max(AttData$wk), by = 4),]$ISOweek,
                      breaks = seq(min(AttData$wk), max(AttData$wk), by = 4)) +
-  scale_y_continuous(name = "Number of deaths", limits = c(790, 1275), breaks = seq(800, 1250, by = 50)) +
+  scale_y_continuous(name = "Number of deaths") +
   theme(plot.title = element_text(face = 'bold', hjust = 0.5, size = 20), legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1, size = 7)) +
   scale_color_identity(name = "",
                        breaks = c("gray50", "grey0", 'black', 'blue', 'chocolate4'),
@@ -176,7 +178,7 @@ plot_grid(graph_base, graph_adj, align = 'h', ncol = 1, rel_widths = c(1, 1))
 
 # ET graph ----------------------------------------------------------------
 
-ETData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Denmark/AttMOMO_2020-W20/data/ET_data.txt",
+ETData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Norway/AttMOMO_2020-W22/data/ET_data.txt",
                                 sep = ";", header = TRUE, as.is = TRUE))
 
 ETData[, `:=`(tempCold = ifelse(temp < ptmin, temp, NA),
@@ -199,37 +201,37 @@ graph <- ggplot(ETData, aes(x = wk)) +
                        guide = "legend")
 print(graph)
 
-# GSIPLS ------------------------------------------------------------------
+# pr100_ili_total ------------------------------------------------------------------
 
-GSIPLSData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Denmark/AttMOMO_2020-W20/data/GSIPLS_data.txt",
+pr100_ili_totalData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Norway/AttMOMO_2020-W22/data/pr100_ili_total_data.txt",
                                 sep = ";", header = TRUE, as.is = TRUE))
 
-GSIPLSData[, `:=`(GSIPLS = 10 * GSIPLS, wk = as.numeric(factor(ISOweek)))]
+pr100_ili_totalData[, `:=`(pr100_ili_total = 10 * pr100_ili_total, wk = as.numeric(factor(ISOweek)))]
 
-graph <- ggplot(GSIPLSData[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') & (group == 'Total'), ], aes(x = wk)) +
-  geom_line(aes(y = GSIPLS), colour = "black", linetype = "solid", size = 1.2) +
+graph <- ggplot(pr100_ili_totalData[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') & (group == 'Total'), ], aes(x = wk)) +
+  geom_line(aes(y = pr100_ili_total), colour = "black", linetype = "solid", size = 1.2) +
   scale_x_continuous(name = "ISOWeek",
-                     labels = GSIPLSData[seq(min(GSIPLSData$wk), max(GSIPLSData$wk), by = 4),]$ISOweek,
-                     breaks = seq(min(GSIPLSData$wk), max(GSIPLSData$wk), by = 4)) +
-  scale_y_continuous(name = "GSIPLS") +
+                     labels = pr100_ili_totalData[seq(min(pr100_ili_totalData$wk), max(pr100_ili_totalData$wk), by = 4),]$ISOweek,
+                     breaks = seq(min(pr100_ili_totalData$wk), max(pr100_ili_totalData$wk), by = 4)) +
+  scale_y_continuous(name = "pr100_ili_total") +
   # facet_wrap(vars(group), scales = "free_y", ncol = 1) +
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
 
 print(graph)
 
-# GSCLS ------------------------------------------------------------------
+# covid_hospital ------------------------------------------------------------------
 
-GSCLSData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Denmark/AttMOMO_2020-W19/data/GSCLS_data.txt",
+covid_hospitalData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Norway/AttMOMO_2020-W22/data/covid_hospital_data.txt",
                                    sep = ";", header = TRUE, as.is = TRUE))
 
-GSCLSData[, wk := as.numeric(factor(ISOweek))]
+covid_hospitalData[, wk := as.numeric(factor(ISOweek))]
 
-graph <- ggplot(GSCLSData[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') & (group == 'Total'), ], aes(x = wk)) +
-  geom_line(aes(y = GSCLS), colour = "black", linetype = "solid", size = 1.2) +
+graph <- ggplot(covid_hospitalData[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') & (group == 'Total'), ], aes(x = wk)) +
+  geom_line(aes(y = covid_hospital), colour = "black", linetype = "solid", size = 1.2) +
   scale_x_continuous(name = "ISOWeek",
-                     labels = GSCLSData[seq(min(GSCLSData$wk), max(GSCLSData$wk), by = 4),]$ISOweek,
-                     breaks = seq(min(GSCLSData$wk), max(GSCLSData$wk), by = 4)) +
-  scale_y_continuous(name = "GSCLS") +
+                     labels = covid_hospitalData[seq(min(covid_hospitalData$wk), max(covid_hospitalData$wk), by = 4),]$ISOweek,
+                     breaks = seq(min(covid_hospitalData$wk), max(covid_hospitalData$wk), by = 4)) +
+  scale_y_continuous(name = "covid_hospital") +
   # facet_wrap(vars(group), scales = "free_y", ncol = 1) +
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
 
@@ -237,68 +239,42 @@ print(graph)
 
 # Indicators --------------------------------------------------------------
 
-indicators <- merge(GSIPLSData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Denmark/AttMOMO_2020-W22/data/GSIPLS_data.txt",
+indicators <- merge(pr100_ili_totalData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Norway/AttMOMO_2020-W22/data/pr100_ili_total_data.txt",
                                                         sep = ";", header = TRUE, as.is = TRUE)),
-                    GSCLSData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Denmark/AttMOMO_2020-W22/data/GSCLS_data.txt",
+                    covid_hospitalData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Norway/AttMOMO_2020-W22/data/covid_hospital_data.txt",
                                                        sep = ";", header = TRUE, as.is = TRUE)),
                     by = c('group', 'ISOweek'))
-indicators[, `:=`(GSIPLS = 10 * GSIPLS, wk = as.numeric(factor(ISOweek)))]
+indicators[, `:=`(pr100_ili_total = 100000 * pr100_ili_total, wk = as.numeric(factor(ISOweek)))]
 
 graph <- ggplot(indicators[('2014-W27' <= ISOweek) & (ISOweek <= '2020-W20') & (group == 'Total'),], aes(x = wk)) +
-  geom_line(aes(y = GSCLS, colour = "chocolate4"), linetype = "solid", size = 1.2) +
-  geom_line(aes(y = GSIPLS, colour = "blue"), linetype = "solid", size = 1.2) +
+  geom_line(aes(y = covid_hospital, colour = "chocolate4"), linetype = "solid", size = 1.2) +
+  geom_line(aes(y = pr100_ili_total, colour = "blue"), linetype = "solid", size = 1.2) +
   scale_x_continuous(name = "ISOWeek",
                      labels = indicators[seq(min(indicators$wk), max(indicators$wk), by = 8),]$ISOweek,
                      breaks = seq(min(indicators$wk), max(indicators$wk), by = 8)) +
   scale_y_continuous(name = "Indicator value") +
   # facet_wrap(vars(group), scales = "free_y", ncol = 1) +
-  theme(legend.position = "bottom", legend.text = element_text(size = 20), axis.text.x = element_text(angle = 90, hjust = 1, size = 7)) +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1, size = 7)) +
   scale_color_identity(name = "",
                        breaks = c('blue', 'chocolate4'),
-                       labels = c("10 * GSIPLS", "GSCLS"),
+                       labels = c("10 * pr100_ili_total", "covid_hospital"),
                        guide = "legend")
 print(graph)
 
 # Zoom on ISOweek >= 2019-W40
 graph_zoom <- ggplot(indicators[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') & (group == 'Total'),], aes(x = wk)) +
-  geom_line(aes(y = GSCLS, colour = "chocolate4"), linetype = "solid", size = 1.2) +
-  geom_line(aes(y = GSIPLS, colour = "blue"), linetype = "solid", size = 1.2) +
+  geom_line(aes(y = covid_hospital, colour = "chocolate4"), linetype = "solid", size = 1.2) +
+  geom_line(aes(y = pr100_ili_total, colour = "blue"), linetype = "solid", size = 1.2) +
   scale_x_continuous(name = "ISOWeek",
                      labels = indicators[seq(min(indicators$wk), max(indicators$wk), by = 4),]$ISOweek,
                      breaks = seq(min(indicators$wk), max(indicators$wk), by = 4)) +
   scale_y_continuous(name = "") +
   # facet_wrap(vars(group), scales = "free_y", ncol = 1) +
-  theme(legend.position = "bottom", legend.text = element_text(size = 20), axis.text.x = element_text(angle = 90, hjust = 1, size = 7)) +
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1, size = 7)) +
   scale_color_identity(name = "",
                        breaks = c('blue', 'chocolate4'),
-                       labels = c("10 * GSIPLS", "GSCLS"),
+                       labels = c("10 * pr100_ili_total", "covid_hospital"),
                        guide = "legend")
 print(graph_zoom)
 
 plot_grid(graph, graph_zoom, align = 'h', labels = c('2014-W27 to 2020-W20', '2019-W40 to 2020-W20'), label_size = 20, ncol = 2, rel_widths = c(2, 1))
-
-
-
-# Adjusted baseline illustration ------------------------------------------
-
-AttData <- data.table(read.table(file = "H:/SFSD/INFEPI/Projekter/AKTIVE/MOMO/AttMOMO/Denmark/AttMOMO_2020-W22/output/AttData_GSIPLS_GSCLS.txt",
-                                 sep = ";", header = TRUE, as.is = TRUE))
-
-AttData[, `:=`(EBET = EB + EET,
-               wk = as.numeric(factor(ISOweek)))]
-
-graph_zoom <- ggplot(AttData[('2019-W40' <= ISOweek) & (ISOweek <= '2020-W20') & (group == 'Total'), ], aes(x = wk)) +
-  geom_line(aes(y = deaths, colour = "gray70"), linetype = "solid", size = 1.2) +
-  geom_line(aes(y = EB, colour = "black"), linetype = "solid", size = 1) +
-  geom_line(aes(y = EBET, colour = "green3"), linetype = "solid", size = 1) +
-  geom_line(aes(y = EAB, colour = "red"), linetype = "solid", size = 1.2) +
-  scale_x_continuous(name = "ISOWeek",
-                     labels = AttData[seq(min(AttData$wk), max(AttData$wk), by = 4),]$ISOweek,
-                     breaks = seq(min(AttData$wk), max(AttData$wk), by = 4)) +
-  scale_y_continuous(name = "Number of deaths") +
-  theme(legend.position = "bottom", legend.text = element_text(size = 20), axis.text.x = element_text(angle = 90, hjust = 1, size = 7)) +
-  scale_color_identity(name = "",
-                       breaks = c("gray70", 'black', 'green3', 'red'),
-                       labels = c("Observed", "Baseline", "Adjusted to excess temperatures", "Adjusted to excess temperatures and benign effects"),
-                       guide = "legend")
-print(graph_zoom)

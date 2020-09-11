@@ -70,7 +70,7 @@ AttMOMO <- function(country, wdir, StartWeek, EndWeek, groups, pooled = NULL, in
     assign(paste0(i, '_data'), X, envir = .GlobalEnv)
   }
 
-  source('R/AttMOMO_estimation.R')
+  # source('R/AttMOMO_estimation.R')
   AttData <- AttMOMO_estimation(country, StartWeek, EndWeek, groups, pooled, indicators, death_data, ET_data, lags, ptrend, p26, p52)
 
   write.table(AttData, file = paste0(outdir, "/AttData_", paste(indicators, collapse = '_'), ".txt"), sep = ";", row.names = FALSE, col.names = TRUE)

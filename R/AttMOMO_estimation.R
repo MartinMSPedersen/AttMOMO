@@ -218,17 +218,9 @@ AttMOMO_estimation <- function(country, StartWeek, EndWeek, groups, pooled = NUL
     # Remove NA colinearity
     f <- paste("deaths ~ -1 +", paste(names(m$coefficients[!is.na(m$coefficients)]), collapse = ' + '))
 
-    # Get R2 - don't work in function
-    # X <- data.frame(copy(AttData[group == g,]))
-    # m <- glm(f, quasipoisson(identity), data = X)
-    # R2 <- rsq::rsq(m, adj = FALSE, type = 'v')
-    # Adj.R2 <- rsq::rsq(m, adj = TRUE, type = 'v')
-
     m <- glm(f, quasipoisson(identity), data = AttData[group == g,])
 
     print(summary(m, dispersion = max(1, sum(residuals(m, type = "deviance")^2)/df.residual(m))))
-    # print(paste('R2 =', R2, ' Adjusted R2 =', Adj.R2))
-    # rm(X, R2, Adj.R2)
 
     # Predictions -------------------------------------------------------------
 
@@ -304,14 +296,15 @@ AttMOMO_estimation <- function(country, StartWeek, EndWeek, groups, pooled = NUL
     }
   }
   AttData[, season := NULL]
-  rm(f, fa, expr, parm, g, i, l, m, ma, AttData.B, AttData.ET)
+  # rm(f, fa, expr, parm, g, i, l, m, ma, AttData.B, AttData.ET)
+  rm(fa, expr, parm, g, i, l, ma, AttData.B, AttData.ET)
 
   # Pooled total ------------------------------------------------------------
   if (!is.null(pooled)) {
     pooledData <- AttData[group %in% pooled,
                           .(group = 'TotalPooled',
                             deaths = sum(deaths, na.rm = TRUE),
-                            ET = sum(ET, na.rm = TRUE),
+                            ET = mean(ET, na.rm = TRUE),
                             EB = sum(EB, na.rm = TRUE),
                             VEB = sum(VEB, na.rm = TRUE),
                             EET = sum(EET, na.rm = TRUE),
@@ -321,11 +314,11 @@ AttMOMO_estimation <- function(country, StartWeek, EndWeek, groups, pooled = NUL
                           ), keyby = ISOweek]
 
     for (i in indicators) {
-      expr <- parse(text = paste0(".(", i, " = sum(", i, ", na.rm = TRUE),
-                                  E", i, " = sum(E", i, ", na.rm = TRUE),
-                                  VE", i, " = sum(VE", i, ", na.rm = TRUE),
-                                  EA", i, " = sum(EA", i, ", na.rm = TRUE),
-                                  VEA", i, " = sum(VEA", i, ", na.rm = TRUE))"))
+      expr <- parse(text = paste0(".(", i, " = NA,
+                                     E", i, " = sum(E", i, ", na.rm = TRUE),
+                                     VE", i, " = sum(VE", i, ", na.rm = TRUE),
+                                     EA", i, " = sum(EA", i, ", na.rm = TRUE),
+                                     VEA", i, " = sum(VEA", i, ", na.rm = TRUE))"))
       pooledData <- merge(pooledData, AttData[group %in% pooled, eval(expr), keyby = ISOweek], by = "ISOweek", all.x = TRUE)
     }
     AttData <- rbind(AttData, pooledData)
@@ -349,3 +342,13 @@ AttMOMO_estimation <- function(country, StartWeek, EndWeek, groups, pooled = NUL
 # mod2 = lm(res ~ n, data = res)
 # summary(mod2)
 # plot(res$res ~ res$n)
+
+
+# Get R2 - don't work in function
+# print(logLik(m, REML = FALSE))
+# X <- subset(AttData, group == "Total")
+# m <- glm2::glm2(f, quasipoisson(identity), data = AttData[which(AttData$group == "Total"),])
+# R2 <- rsq::rsq(m, adj = FALSE, type = 'v')
+# Adj.R2 <- rsq::rsq(m, adj = TRUE, type = 'v')
+# print(paste("R2:", R2))
+# print(paste("Adj.R2:", Adj.R2))

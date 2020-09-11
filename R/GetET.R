@@ -12,10 +12,11 @@ GetET <- function(ET, StartWeek, EndWeek, tvar) {
   # library(data.table)
   # library(ISOweek)
 
+  # source("C:/Users/NLS/Documents/GitHub/EuroMOMOnetwork/AttMOMO/R/GetWdata.R")
   # ET <- GetWdata('C:/Users/NLS/Bat_Files/wdata', 'DK')
   # StartWeek <- '2014-W27'
   # EndWeek <- '2020-W22'
-  # tvar <- "temp"
+  # tvar <- "mintemp"
 
   ET <- data.table(ET)
   # keep relevant colums
@@ -33,11 +34,9 @@ GetET <- function(ET, StartWeek, EndWeek, tvar) {
   # Mean over NUTS3 and date
   ET <- ET[, .(temp = mean(temp, na.rm = TRUE), pop3 = mean(pop3, na.rm = TRUE)), keyby = .(NUTS3, date)]
   # add total population
-  ET <- merge(ET, ET[, .(pop3.sum = sum(pop3, na.rm = TRUE)), keyby = .(date)], by = "date")
+  ET[, pop3.sum := sum(pop3, na.rm = TRUE), keyby = date]
   # by date weighted by population
-  ET <- ET[, .(temp = sum(temp * pop3 / pop3.sum, na.rm =TRUE),
-               tmin = sum(temp * pop3 / pop3.sum, na.rm =TRUE),
-               tmax = sum(temp * pop3 / pop3.sum, na.rm =TRUE)), keyby = date]
+  ET <- ET[, .(temp = sum(temp * pop3 / pop3.sum, na.rm =TRUE)), keyby = date]
   # mean by ISOweek
   ET <- ET[, .(temp = mean(temp, na.rm =TRUE), tmin = min(temp, na.rm =TRUE), tmax = max(temp, na.rm =TRUE)), keyby = .(ISOweek = ISOweek::ISOweek(as.Date(date)))]
 

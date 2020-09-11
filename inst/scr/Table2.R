@@ -76,7 +76,7 @@ for (g in c('Total', 'TotalPooled')) {
 
 Table2 <- merge(GSCLS_week, AGSCLS_week, by = 'ISOweek')
 
-source("R/Casefatality.R", encoding = "UTF-8")
+source("inst/scr/Casefatality.R", encoding = "UTF-8")
 Table2 <- merge(Table2, GetCOVID19CF(StartWeek, EndWeek), by = 'ISOweek')
 
 Table2[, wk := as.numeric(factor(ISOweek))]
@@ -91,7 +91,8 @@ graph <- ggplot(Table2[ISOweek != 'Total', ], aes(x = wk)) +
                      labels = Table2$ISOweek,
                      breaks = seq(min(Table2$wk), max(Table2$wk), by = 1)) +
   scale_y_continuous(name = "Number of deaths") +
-  theme(plot.title = element_text(face = 'bold', hjust = 0.5, size = 20), legend.position = "bottom", axis.text.x = element_text(angle = 90, hjust = 1, size = 7)) +
+  theme(plot.title = element_text(face = 'bold', hjust = 0.5, size = 20), legend.position = "bottom", legend.text = element_text(size = 20),
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 7)) +
   scale_color_identity(name = "",
                        breaks = c('gray10', 'black', 'blue'),
                        labels = c("Pooled over age groups (Adjusted baseline model)", "95% CI", "CaseFatality"),
